@@ -1,0 +1,23 @@
+# Web Interface
+streamlit==1.45.0
+
+# Core AI Framework (v1.x Stable)
+langchain==1.2.17
+langchain-core==1.3.3
+langchain-community==0.4.5
+langgraph==1.1.10
+
+# Integrations & Specialized Toolkits
+langchain-google-genai==1.2.4
+langchain-huggingface==0.2.1
+langchain-experimental==0.1.5
+
+# Data & Documents
+pandas==2.2.3
+openpyxl==3.1.5
+pypdf==4.2.0
+faiss-cpu==1.8.0
+sqlalchemy==2.0.30
+
+# Utilities
+python-dotenv==1.0.1

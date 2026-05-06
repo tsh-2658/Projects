@@ -1,0 +1,6 @@
+.env
+temp_uploads/
+__pycache__/
+*.db
+*.sqlite
+.ipynb_checkpoints/
