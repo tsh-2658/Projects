@@ -1,0 +1,72 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #111827;
+  background: #f4f7fb;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+}
+
+.app-shell {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+h1 { color: #1e293b; margin-bottom: 5px; }
+h2 { font-size: 1.25rem; color: #2563eb; margin-top: 0; }
+
+input, textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+  margin-top: 8px;
+  background: #f9fafb;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover { background: #1d4ed8; }
+
+#voice-button { background: #10b981; margin-left: 10px; }
+
+.chat-window {
+  height: 350px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 15px;
+  background: #f8fafc;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.chat-item { margin-bottom: 12px; }
+.chat-item strong { color: #475569; font-size: 0.85rem; text-transform: uppercase; }
+.chat-item p { margin: 4px 0 0; line-height: 1.5; }
+
+.status {
+  font-size: 0.9rem;
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
