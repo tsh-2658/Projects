@@ -118,24 +118,52 @@ def supervisor_node(state: AgentState):
 
 
 def pdf_txt_node(state: AgentState):
-    files = [f for f in state["file_paths"] if f.lower().endswith((".pdf", ".txt"))]
-    if not files: return {"used_agents": ["pdf_txt"]}
+    file_paths = state["file_paths"]
+    # Create a unique ID based on the current active files
+    # This ensures that if you add/remove a file, the ID changes
+    files_id = "-".join(sorted([os.path.basename(f) for f in file_paths]))
+    vector_store_path = f"vectorstore_{hash(files_id)}" 
+
+    if os.path.exists(vector_store_path):
+        # FAST PATH: Load existing embeddings
+        vector_store = FAISS.load_local(
+            vector_store_path, 
+            embedding_model, 
+            allow_dangerous_deserialization=True
+        )
+    else:
+        # SLOW PATH: Build from scratch (only runs when files change)
+        all_docs = []
+        for path in file_paths:
+            if path.endswith(".pdf"):
+                loader = PyPDFLoader(path)
+                all_docs.extend(loader.load())
+            elif path.endswith(".txt"):
+                loader = TextLoader(path)
+                all_docs.extend(loader.load())
+        
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+        docs = text_splitter.split_documents(all_docs)
+        vector_store = FAISS.from_documents(docs, embedding_model)           
+    # files = [f for f in state["file_paths"] if f.lower().endswith((".pdf", ".txt"))]
+    # if not files: return {"used_agents": ["pdf_txt"]}
     
-    docs = []
-    for f in files:
-        loader = PyPDFLoader(f) if f.endswith(".pdf") else TextLoader(f)
-        docs.extend(loader.load())
+    # docs = []
+    # for f in files:
+    #     loader = PyPDFLoader(f) if f.endswith(".pdf") else TextLoader(f)
+    #     docs.extend(loader.load())
     
-    splits = RecursiveCharacterTextSplitter(chunk_size=1000).split_documents(docs)
-    vector = FAISS.from_documents(splits, embedding_model)
+    # splits = RecursiveCharacterTextSplitter(chunk_size=1000).split_documents(docs)
+    # vector = FAISS.from_documents(splits, embedding_model)
     query = get_latest_user_query(state["messages"])
-    context = "\n".join([d.page_content for d in vector.similarity_search(query, k=3)])
+    context = "\n".join([d.page_content for d in vector_store.similarity_search(query, k=3)])
     
     ans = llm.invoke(f"Context: {context}\n\nQuestion: {query}")
     res = {"messages": [AIMessage(content=ans.content)], "used_agents": ["pdf_txt"]}
     if has_successful_answer(ans.content):
         res["final_answer"] = ans.content
     return res
+
 
 def csv_node(state: AgentState):
     files = [f for f in state["file_paths"] if f.lower().endswith((".csv", ".xlsx"))]
