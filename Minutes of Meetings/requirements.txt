@@ -1,0 +1,13 @@
+streamlit>=1.35.0
+moviepy>=1.0.3
+faster-whisper>=1.0.0
+reportlab>=4.0.0
+langchain>=0.3.0
+langchain-core>=0.3.0          # PromptTemplate, StrOutputParser, RunnablePassthrough
+langchain-community>=0.3.0     # OllamaEmbeddings, FAISS, HuggingFaceEmbeddings, PyPDFLoader
+langchain-text-splitters>=0.3.0  # RecursiveCharacterTextSplitter
+langchain-groq>=0.2.0
+faiss-cpu>=1.8.0
+python-dotenv>=1.0.0
+sentence-transformers>=3.0.0
+pypdf>=4.0.0
