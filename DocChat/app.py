@@ -31,7 +31,6 @@ try:
 except ImportError:
     ChatGoogleGenerativeAI = None
 
-# Constants
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "uploads"
 VECTOR_DIR = BASE_DIR / "vectorstore"
@@ -69,7 +68,6 @@ app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
 chunker = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
 
-# GOOGLE Config
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 GOOGLE_MODEL = "gemini-2.0-flash" 
 
@@ -83,7 +81,6 @@ vector_store: Optional[FAISS] = None
 class ChatRequest(BaseModel):
     question: str
 
-# --- Helper Functions (Logs) ---
 def read_log_csv() -> List[Dict[str, Any]]:
     if not LOG_CSV.exists(): return []
     with LOG_CSV.open("r", encoding="utf-8", newline="") as csvfile:
@@ -107,7 +104,6 @@ def is_log_question(question: str) -> bool:
 
 def answer_log_question(question: str) -> Optional[str]:
     if not is_log_question(question): return None
-    # ... (Keep existing log parsing logic)
     now = datetime.utcnow()
     query = select(upload_logs).order_by(upload_logs.c.upload_time.desc())
     with engine.connect() as conn:
@@ -126,7 +122,6 @@ def create_db_log(username: str, filename: str, document_name: str):
     save_log_csv(rows)
     dump_logs_to_text()
 
-# --- Summarization Function ---
 def summarize_all_documents() -> str:
     """Summarizes all files in the upload directory using Map-Reduce."""
     docs: List[Document] = []
@@ -143,15 +138,12 @@ def summarize_all_documents() -> str:
     if not docs:
         return "No documents found to summarize."
 
-    # Split for summarization (slightly larger chunks for better context)
     summary_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
     split_docs = summary_splitter.split_documents(docs)
 
-    # Use Map-Reduce to handle many documents (100+)
     summarize_chain = load_summarize_chain(llm, chain_type="map_reduce")
     return summarize_chain.run(split_docs)
 
-# --- RAG Logic ---
 def build_vector_store() -> Optional[FAISS]:
     docs: List[Document] = []
     for file_path in sorted(UPLOAD_DIR.iterdir()):
@@ -192,7 +184,6 @@ def rag_search(question: str, username: str) -> str:
     result = chain.invoke({"input": question})
     return result.get("answer", "")
 
-# --- API Routes ---
 @app.post("/upload")
 async def upload_documents(files: List[UploadFile] = File(...)):
     global vector_store
@@ -209,18 +200,16 @@ def chat(payload: ChatRequest):
     username = "admin_user"
     question = payload.question.lower()
 
-    # 1. Log Info Check
+
     log_answer = answer_log_question(question)
     if log_answer:
         return {"question": payload.question, "answer": log_answer}
 
-    # 2. Summarization Check
     summary_keywords = ["summarize all", "summary of all", "summarize everything", "overall summary"]
     if any(k in question for k in summary_keywords):
         summary = summarize_all_documents()
         return {"question": payload.question, "answer": summary}
 
-    # 3. Normal RAG Chat
     answer = rag_search(payload.question, username)
     return {"question": payload.question, "answer": answer}
 
