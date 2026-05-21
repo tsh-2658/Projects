@@ -1,0 +1,7 @@
+streamlit
+langgraph
+langchain-core
+langchain-google-genai
+langchain-nvidia-ai-endpoints
+pydantic
+python-dotenv
